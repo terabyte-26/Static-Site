@@ -14,6 +14,8 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 @app.route("/")
 def home():
 
+    print('request.headers', request.headers)
+
     try:
         headers_list = request.headers.getlist("X-Forwarded-For")
         ip_address = headers_list[0] if headers_list else request.remote_addr
