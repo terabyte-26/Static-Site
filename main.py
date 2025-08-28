@@ -25,6 +25,16 @@ def services():
     return render_template("services.html")
 
 
+@app.route("/privacy-policy")
+def privacy_policy():
+    return render_template("privacy-policy.html")
+
+
+@app.route("/terms-amp-conditions")
+def terms_amp_conditions():
+    return render_template("terms-amp-conditions.html")
+
+
 # -------------------------
 # Static file serving
 # -------------------------
