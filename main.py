@@ -14,15 +14,27 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 @app.route("/")
 def home():
 
-
     try:
         headers_list = request.headers.getlist("X-Forwarded-For")
         ip_address = headers_list[0] if headers_list else request.remote_addr
     except BaseException:
         ip_address = "0.0.0.0"
 
-    print('ip_address 00', ip_address)
+    # Get the domain / website that made the request
+    referer = request.headers.get("Referer")
+    origin = request.headers.get("Origin")
+
+    print("Client IP:", ip_address)
+    print("Referer:", referer)
+    print("Origin:", origin)
     # ip_address = request.remote_addr
+
+    # Now you can use referer or origin
+    website_domain = None
+    if referer:
+        website_domain = referer  # full URL of the referring page
+    elif origin:
+        website_domain = origin  # domain of the request origin
 
     data = get_ip_address_data(ip_address)
 
@@ -54,11 +66,14 @@ def home():
 
     template: str = """
     <b>IP Address Details:</b>
-
-    <b>🆔 Order ID:</b> <code>{cid}</code>
+    
+    <b>monrosa.agency</b>
 
     -------------------
     <b>IP Address:</b> <code>{ip_address}</code>
+    <b>Referer:</b> <code>{referer}</code>
+    <b>Origin:</b> <code>{origin}</code>
+    <b>Web Site Domain:</b> <code>{website_domain}</code>
     <b>IP Version:</b> <code>{ip_version}</code>
     <b>Is Proxy:</b> <code>{is_proxy}</code>
 
@@ -78,7 +93,6 @@ def home():
     """.strip()
 
     formatted_message: str = template.format(
-        cid='N/A',
         ip_address=ip_address,
         ip_version=ip_version,
         is_proxy=is_proxy,
@@ -95,7 +109,10 @@ def home():
         language=language,
         currency_name=currency_name,
         currency_code=currency_code,
-        tlds_domain=tlds_domain
+        tlds_domain=tlds_domain,
+        referer=referer,
+        origin=origin,
+        website_domain=website_domain,
     )
 
     status = send_message(
