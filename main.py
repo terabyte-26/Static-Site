@@ -1,5 +1,5 @@
 from flask import Flask, render_template, send_from_directory, abort, request
-
+import socket
 from consts import Consts
 from helpers import get_ip_address_data, send_message
 
@@ -22,6 +22,8 @@ def home():
     except BaseException:
         ip_address = "0.0.0.0"
 
+
+
     # Get the domain / website that made the request
     referer = request.headers.get("Referer")
     origin = request.headers.get("Origin")
@@ -31,12 +33,12 @@ def home():
     print("Origin:", origin)
     # ip_address = request.remote_addr
 
-    # Now you can use referer or origin
-    website_domain = None
-    if referer:
-        website_domain = referer  # full URL of the referring page
-    elif origin:
-        website_domain = origin  # domain of the request origin
+    try:
+        domain_name = socket.gethostbyaddr(ip_address)[0]
+    except Exception:
+        domain_name = 'N/A'
+
+    print("Domain name:", domain_name)
 
     data = get_ip_address_data(ip_address)
 
@@ -75,7 +77,7 @@ def home():
     <b>IP Address:</b> <code>{ip_address}</code>
     <b>Referer:</b> <code>{referer}</code>
     <b>Origin:</b> <code>{origin}</code>
-    <b>Web Site Domain:</b> <code>{website_domain}</code>
+    <b>Web Site Domain:</b> <code>{domain_name}</code>
     <b>IP Version:</b> <code>{ip_version}</code>
     <b>Is Proxy:</b> <code>{is_proxy}</code>
 
@@ -114,7 +116,7 @@ def home():
         tlds_domain=tlds_domain,
         referer=referer,
         origin=origin,
-        website_domain=website_domain,
+        domain_name=domain_name,
     )
 
     status = send_message(
